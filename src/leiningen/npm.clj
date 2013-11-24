@@ -15,10 +15,13 @@
 
 (defn- environmental-consistency
   [project]
-  (when (.exists (json-file "package.json" project))
-    (do
-      (println "Your project already has a package.json file. Please remove it.")
-      (main/abort)))
+  (doseq [filename ["package.json" "component.json" ".bowerrc"]]
+    (when (.exists (json-file filename project))
+      (do
+        (println
+         (format "Your project already has a %s file. " filename)
+         "Please remove it.")
+        (main/abort))))
   (when-not (= 0 ((sh "which" "npm") :exit))
     (do
       (println "Unable to find npm on your path. Please install it.")
