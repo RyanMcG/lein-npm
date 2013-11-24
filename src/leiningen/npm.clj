@@ -35,10 +35,11 @@
 (defn- project->package
   [project]
   (json/generate-string
-   {:name (project :name)
-    :description (project :description)
-    :version (project :version)
-    :dependencies (transform-deps (resolve-node-deps project))}))
+   (merge (project :nodejs)
+          {:name (project :name)
+           :description (project :description)
+           :version (project :version)
+           :dependencies (transform-deps (resolve-node-deps project))})))
 
 (defn- write-package
   [project]
