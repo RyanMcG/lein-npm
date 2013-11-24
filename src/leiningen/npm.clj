@@ -52,9 +52,9 @@
                    (resolve-node-deps :bower-dependencies project))}))
 
 (defn- write-json-file
-  [filename project]
+  [filename content project]
   (doto (json-file filename project)
-    (spit (project->package project))
+    (spit content)
     (.deleteOnExit)))
 
 (defn- remove-json-file
