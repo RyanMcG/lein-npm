@@ -9,13 +9,13 @@
             [robert.hooke]
             [leiningen.deps]))
 
-(defn- package-file
-  [project]
-  (io/file (project :root) "package.json"))
+(defn- json-file
+  [filename project]
+  (io/file (project :root) filename))
 
 (defn- environmental-consistency
   [project]
-  (when (.exists (package-file project))
+  (when (.exists (json-file "package.json" project))
     (do
       (println "Your project already has a package.json file. Please remove it.")
       (main/abort)))
@@ -43,13 +43,13 @@
 
 (defn- write-package
   [project]
-  (doto (package-file project)
+  (doto (json-file "package.json" project)
     (spit (project->package project))
     (.deleteOnExit)))
 
 (defn- remove-package
   [project]
-  (.delete (package-file project)))
+  (.delete (json-file "package.json" project)))
 
 (defmacro with-package
   [project & forms]
