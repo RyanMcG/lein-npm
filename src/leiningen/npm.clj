@@ -86,6 +86,7 @@
 
 (defn install-deps
   [project]
+  (environmental-consistency project)
   (with-json-file "package.json" (project->package project) project
     (with-json-file
       "component.json" (project->component project) project
