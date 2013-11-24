@@ -51,9 +51,13 @@ You can specify where bower components will be installed with:
 You can execute NPM commands that require the presence of a
 `package.json` file using the `lein npm` command. This command creates
 a temporary `package.json` based on your `project.clj` before invoking
-the NPM command you specify. Note that the `package.json` currently
-only contains the keys `name`, `description`, `version` and
-`dependencies`.
+the NPM command you specify. The keys `name`, `description`, `version` and
+`dependencies` are automatically added to `package.json`. Other keys can be
+specified by adding a `:node-js` key in your `project.clj`:
+
+```clojure
+  :nodejs {:scripts {:test "testem"}}
+```
 
 ```sh
 $ lein npm install        # installs project dependencies
