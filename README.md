@@ -39,6 +39,13 @@ Like NPM dependencies, bower components can be installed by adding a
                        [angular-ui "~0.4.0"]
                        [angular-bootstrap "~0.3.0"]]
 ```
+
+You can specify where bower components will be installed with:
+
+```clojure
+:bower-directory "resources/public/js/lib"
+```
+
 ## Invoking NPM
 
 You can execute NPM commands that require the presence of a
