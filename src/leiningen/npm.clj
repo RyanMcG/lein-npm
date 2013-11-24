@@ -35,11 +35,12 @@
 (defn- project->package
   [project]
   (json/generate-string
-   (merge (project :nodejs)
-          {:name (project :name)
-           :description (project :description)
-           :version (project :version)
-           :dependencies (transform-deps (resolve-node-deps project))})))
+   (-> (project :nodejs)
+       (merge {:name (project :name)
+               :description (project :description)
+               :version (project :version)
+               :dependencies (transform-deps (resolve-node-deps project))})
+       (assoc-in [:scripts :bower] "bower install"))))
 
 (defn- write-json-file
   [filename project]
