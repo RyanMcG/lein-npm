@@ -62,9 +62,9 @@
   (.delete (json-file filename project)))
 
 (defmacro with-json-file
-  [filename project & forms]
+  [filename content project & forms]
   `(try
-     (write-json-file ~filename ~project)
+     (write-json-file ~filename ~content ~project)
      ~@forms
      (finally (remove-json-file ~filename ~project))))
 
