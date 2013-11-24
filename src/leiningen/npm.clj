@@ -51,6 +51,11 @@
     :dependencies (transform-deps
                    (resolve-node-deps :bower-dependencies project))}))
 
+(defn- project->bowerrc
+  [project]
+  (json/generate-string
+   {:directory (project :bower-directory)}))
+
 (defn- write-json-file
   [filename content project]
   (doto (json-file filename project)
