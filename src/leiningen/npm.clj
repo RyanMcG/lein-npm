@@ -81,13 +81,18 @@
      (main/abort))
   ([project & args]
      (environmental-consistency project)
-     (with-json-file "package.json" project
+     (with-json-file "package.json" (project->package project) project
        (apply invoke project args))))
 
 (defn install-deps
   [project]
-  (with-json-file "package.json" project
-    (invoke project "install")))
+  (with-json-file "package.json" (project->package project) project
+    (with-json-file
+      "component.json" (project->component project) project
+      (with-json-file
+        ".bowerrc" (project->bowerrc project) project
+        (invoke project "install")
+        (invoke project "run-script" "bower")))))
 
 (defn wrap-deps
   [f & args]
