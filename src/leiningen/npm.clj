@@ -41,22 +41,22 @@
            :version (project :version)
            :dependencies (transform-deps (resolve-node-deps project))})))
 
-(defn- write-package
-  [project]
-  (doto (json-file "package.json" project)
+(defn- write-json-file
+  [filename project]
+  (doto (json-file filename project)
     (spit (project->package project))
     (.deleteOnExit)))
 
-(defn- remove-package
-  [project]
-  (.delete (json-file "package.json" project)))
+(defn- remove-json-file
+  [filename project]
+  (.delete (json-file filename project)))
 
-(defmacro with-package
-  [project & forms]
+(defmacro with-json-file
+  [filename project & forms]
   `(try
-     (write-package ~project)
+     (write-json-file ~filename ~project)
      ~@forms
-     (finally (remove-package ~project))))
+     (finally (remove-json-file ~filename ~project))))
 
 (defn npm
   "Invoke the NPM package manager."
@@ -66,12 +66,12 @@
      (main/abort))
   ([project & args]
      (environmental-consistency project)
-     (with-package project
+     (with-json-file "package.json" project
        (apply invoke project args))))
 
 (defn install-deps
   [project]
-  (with-package project
+  (with-json-file "package.json" project
     (invoke project "install")))
 
 (defn wrap-deps
