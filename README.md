@@ -26,14 +26,38 @@ These dependencies, and any `:node-dependencies` of packages pulled in
 through the regular `:dependencies`, will be installed through NPM
 when you run either `lein npm install` or `lein deps`.
 
+## Managing Bower dependencies
+
+Like NPM dependencies, bower components can be installed by adding a
+`:bower-dependencies` key in your `project.clj`:
+
+```clojure
+  :bower-dependencies [[bootstrap "2.3.1"]
+                       [font-awesome "3.0.2"]
+                       [angular "~1.0.6"]
+                       [angular-strap "~0.7.3"]
+                       [angular-ui "~0.4.0"]
+                       [angular-bootstrap "~0.3.0"]]
+```
+
+You can specify where bower components will be installed with:
+
+```clojure
+:bower-directory "resources/public/js/lib"
+```
+
 ## Invoking NPM
 
 You can execute NPM commands that require the presence of a
 `package.json` file using the `lein npm` command. This command creates
 a temporary `package.json` based on your `project.clj` before invoking
-the NPM command you specify. Note that the `package.json` currently
-only contains the keys `name`, `description`, `version` and
-`dependencies`.
+the NPM command you specify. The keys `name`, `description`, `version` and
+`dependencies` are automatically added to `package.json`. Other keys can be
+specified by adding a `:node-js` key in your `project.clj`:
+
+```clojure
+  :nodejs {:scripts {:test "testem"}}
+```
 
 ```sh
 $ lein npm install        # installs project dependencies

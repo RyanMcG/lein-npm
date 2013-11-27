@@ -9,16 +9,19 @@
             [robert.hooke]
             [leiningen.deps]))
 
-(defn- package-file
-  [project]
-  (io/file (project :root) "package.json"))
+(defn- json-file
+  [filename project]
+  (io/file (project :root) filename))
 
 (defn- environmental-consistency
   [project]
-  (when (.exists (package-file project))
-    (do
-      (println "Your project already has a package.json file. Please remove it.")
-      (main/abort)))
+  (doseq [filename ["package.json" "component.json" ".bowerrc"]]
+    (when (.exists (json-file filename project))
+      (do
+        (println
+         (format "Your project already has a %s file. " filename)
+         "Please remove it.")
+        (main/abort))))
   (when-not (= 0 ((sh "which" "npm") :exit))
     (do
       (println "Unable to find npm on your path. Please install it.")
@@ -35,27 +38,43 @@
 (defn- project->package
   [project]
   (json/generate-string
+   (-> (project :nodejs)
+       (merge {:name (project :name)
+               :description (project :description)
+               :version (project :version)
+               :dependencies (transform-deps (resolve-node-deps project))})
+       (assoc-in [:scripts :bower] "bower install"))))
+
+(defn- project->component
+  [project]
+  (json/generate-string
    {:name (project :name)
     :description (project :description)
     :version (project :version)
-    :dependencies (transform-deps (resolve-node-deps project))}))
+    :dependencies (transform-deps
+                   (resolve-node-deps :bower-dependencies project))}))
 
-(defn- write-package
+(defn- project->bowerrc
   [project]
-  (doto (package-file project)
-    (spit (project->package project))
+  (json/generate-string
+   {:directory (project :bower-directory)}))
+
+(defn- write-json-file
+  [filename content project]
+  (doto (json-file filename project)
+    (spit content)
     (.deleteOnExit)))
 
-(defn- remove-package
-  [project]
-  (.delete (package-file project)))
+(defn- remove-json-file
+  [filename project]
+  (.delete (json-file filename project)))
 
-(defmacro with-package
-  [project & forms]
+(defmacro with-json-file
+  [filename content project & forms]
   `(try
-     (write-package ~project)
+     (write-json-file ~filename ~content ~project)
      ~@forms
-     (finally (remove-package ~project))))
+     (finally (remove-json-file ~filename ~project))))
 
 (defn npm
   "Invoke the NPM package manager."
@@ -65,13 +84,19 @@
      (main/abort))
   ([project & args]
      (environmental-consistency project)
-     (with-package project
+     (with-json-file "package.json" (project->package project) project
        (apply invoke project args))))
 
 (defn install-deps
   [project]
-  (with-package project
-    (invoke project "install")))
+  (environmental-consistency project)
+  (with-json-file "package.json" (project->package project) project
+    (with-json-file
+      "component.json" (project->component project) project
+      (with-json-file
+        ".bowerrc" (project->bowerrc project) project
+        (invoke project "install")
+        (invoke project "run-script" "bower")))))
 
 (defn wrap-deps
   [f & args]
