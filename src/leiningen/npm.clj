@@ -9,13 +9,17 @@
             [robert.hooke]
             [leiningen.deps]))
 
+(def ^:dynamic *npm-project-file* "package.json")
+(def ^:dynamic *bower-project-file* "bower.json")
+(def ^:dynamic *bower-config-file* ".bowerrc")
+
 (defn- json-file
   [filename project]
   (io/file (project :root) filename))
 
 (defn- environmental-consistency
   [project]
-  (doseq [filename ["package.json" "component.json" ".bowerrc"]]
+  (doseq [filename [*npm-project-file* *bower-project-file* *bower-config-file*]]
     (when (.exists (json-file filename project))
       (do
         (println
@@ -84,17 +88,17 @@
      (main/abort))
   ([project & args]
      (environmental-consistency project)
-     (with-json-file "package.json" (project->package project) project
+     (with-json-file *npm-project-file* (project->package project) project
        (apply invoke project args))))
 
 (defn install-deps
   [project]
   (environmental-consistency project)
-  (with-json-file "package.json" (project->package project) project
+  (with-json-file *npm-project-file* (project->package project) project
     (with-json-file
-      "component.json" (project->component project) project
+      *bower-project-file* (project->component project) project
       (with-json-file
-        ".bowerrc" (project->bowerrc project) project
+        *bower-config-file* (project->bowerrc project) project
         (invoke project "install")
         (invoke project "run-script" "bower")))))
 
