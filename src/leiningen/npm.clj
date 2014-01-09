@@ -45,19 +45,6 @@
                :dependencies (transform-deps (resolve-node-deps project))})
        (assoc-in [:scripts :bower] "bower install"))))
 
-(defn project->component
-  [project]
-  (json/generate-string
-   {:name (project :name)
-    :description (project :description)
-    :version (project :version)
-    :dependencies (transform-deps
-                   (resolve-node-deps :bower-dependencies project))}))
-
-(defn- project->bowerrc
-  [project]
-  (json/generate-string
-   {:directory (project :bower-directory)}))
 
 (defn- write-json-file
   [filename content project]
