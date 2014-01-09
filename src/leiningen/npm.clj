@@ -91,6 +91,21 @@
      (with-json-file *npm-project-file* (project->package project) project
        (apply invoke project args))))
 
+(defn npm-debug
+  [project]
+  (environmental-consistency project)
+  (with-json-file *npm-project-file* (project->package project) project
+    (println (str "npm project file [" *npm-project-file* "]:\n"))
+    (println (slurp *npm-project-file*))))
+
+(defn bower-debug
+  [project]
+  (environmental-consistency project)
+  (with-json-file
+    *bower-config-file* (project->bowerrc project) project
+    (println (str "bower config file [" *bower-config-file* "]:\n"))
+    (println (slurp *bower-config-file*))))
+
 (defn install-deps
   [project]
   (environmental-consistency project)
