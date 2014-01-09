@@ -101,21 +101,26 @@
 (defn bower-debug
   [project]
   (environmental-consistency project)
-  (with-json-file
-    *bower-config-file* (project->bowerrc project) project
-    (println (str "bower config file [" *bower-config-file* "]:\n"))
-    (println (slurp *bower-config-file*))))
+  (with-json-file *bower-config-file* (project->bowerrc project) project
+    (binding [*bower-project-file* (or (:bower-file project) *bower-project-file*)]
+      (with-json-file *bower-project-file* (project->component project) project
+        (println (str "bower config file [" *bower-config-file* "]:\n"))
+        (println (slurp *bower-config-file*))
+        (println)
+        (println (str "bower project file [" *bower-project-file* "]:\n"))
+        (println (slurp *bower-project-file*))))))
 
 (defn install-deps
   [project]
   (environmental-consistency project)
   (with-json-file *npm-project-file* (project->package project) project
-    (with-json-file
-      *bower-project-file* (project->component project) project
+    (binding [*bower-project-file* (or (:bower-file project) *bower-project-file*)]
       (with-json-file
-        *bower-config-file* (project->bowerrc project) project
-        (invoke project "install")
-        (invoke project "run-script" "bower")))))
+        *bower-project-file* (project->component project) project
+        (with-json-file
+          *bower-config-file* (project->bowerrc project) project
+          (invoke project "install")
+          (invoke project "run-script" "bower"))))))
 
 (defn wrap-deps
   [f & args]
