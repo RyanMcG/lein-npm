@@ -14,8 +14,8 @@
   (io/file (project :root) filename))
 
 (defn environmental-consistency
-  [project]
-  (doseq [filename ["package.json" "component.json" ".bowerrc"]]
+  [project & files]
+  (doseq [filename files]
     (when (.exists (json-file filename project))
       (do
         (println
