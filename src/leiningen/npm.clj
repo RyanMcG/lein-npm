@@ -13,7 +13,7 @@
   [filename project]
   (io/file (project :root) filename))
 
-(defn- environmental-consistency
+(defn environmental-consistency
   [project]
   (doseq [filename ["package.json" "component.json" ".bowerrc"]]
     (when (.exists (json-file filename project))
@@ -31,7 +31,7 @@
   [project & args]
   (exec (project :root) (cons "npm" args)))
 
-(defn- transform-deps
+(defn transform-deps
   [deps]
   (apply hash-map (flatten deps)))
 
@@ -45,7 +45,7 @@
                :dependencies (transform-deps (resolve-node-deps project))})
        (assoc-in [:scripts :bower] "bower install"))))
 
-(defn- project->component
+(defn project->component
   [project]
   (json/generate-string
    {:name (project :name)
