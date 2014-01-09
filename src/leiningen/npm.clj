@@ -42,9 +42,7 @@
        (merge {:name (project :name)
                :description (project :description)
                :version (project :version)
-               :dependencies (transform-deps (resolve-node-deps project))})
-       (assoc-in [:scripts :bower] "bower install"))))
-
+               :dependencies (transform-deps (resolve-node-deps project))}))))
 
 (defn- write-json-file
   [filename content project]
@@ -78,12 +76,7 @@
   [project]
   (environmental-consistency project)
   (with-json-file "package.json" (project->package project) project
-    (with-json-file
-      "component.json" (project->component project) project
-      (with-json-file
-        ".bowerrc" (project->bowerrc project) project
-        (invoke project "install")
-        (invoke project "run-script" "bower")))))
+    (invoke project "install")))
 
 (defn wrap-deps
   [f & args]
