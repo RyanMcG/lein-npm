@@ -79,11 +79,11 @@
 (defn npm
   "Invoke the NPM package manager."
   ([project]
-     (environmental-consistency project)
+     (environmental-consistency project "package.json")
      (println (help/help-for "npm"))
      (main/abort))
   ([project & args]
-     (environmental-consistency project)
+     (environmental-consistency project "package.json")
      (with-json-file "package.json" (project->package project) project
        (apply invoke project args))))
 
