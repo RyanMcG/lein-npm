@@ -31,7 +31,7 @@ You can execute NPM commands that require the presence of a
 a temporary `package.json` based on your `project.clj` before invoking
 the NPM command you specify. The keys `name`, `description`, `version` and
 `dependencies` are automatically added to `package.json`. Other keys can be
-specified by adding a `:node-js` key in your `project.clj`:
+specified by adding a `:nodejs` key in your `project.clj`:
 
 ```clojure
   :nodejs {:scripts {:test "testem"}}
