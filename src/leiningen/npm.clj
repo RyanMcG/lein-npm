@@ -44,13 +44,13 @@
                :version (project :version)
                :dependencies (transform-deps (resolve-node-deps project))}))))
 
-(defn- write-json-file
+(defn write-json-file
   [filename content project]
   (doto (json-file filename project)
     (spit content)
     (.deleteOnExit)))
 
-(defn- remove-json-file
+(defn remove-json-file
   [filename project]
   (.delete (json-file filename project)))
 
