@@ -7,9 +7,7 @@ Leiningen plugin for enabling Node based ClojureScript projects.
 To enable lein-npm for your project, put the following in the
 `:plugins` vector of your `project.clj` file:
 
-```clojure
-[lein-npm "0.1.0"]
-```
+![Latest version](https://clojars.org/lein-npm/latest-version.svg)
 
 ## Managing NPM dependencies
 
@@ -26,26 +24,6 @@ These dependencies, and any `:node-dependencies` of packages pulled in
 through the regular `:dependencies`, will be installed through NPM
 when you run either `lein npm install` or `lein deps`.
 
-## Managing Bower dependencies
-
-Like NPM dependencies, bower components can be installed by adding a
-`:bower-dependencies` key in your `project.clj`:
-
-```clojure
-  :bower-dependencies [[bootstrap "2.3.1"]
-                       [font-awesome "3.0.2"]
-                       [angular "~1.0.6"]
-                       [angular-strap "~0.7.3"]
-                       [angular-ui "~0.4.0"]
-                       [angular-bootstrap "~0.3.0"]]
-```
-
-You can specify where bower components will be installed with:
-
-```clojure
-:bower-directory "resources/public/js/lib"
-```
-
 ## Invoking NPM
 
 You can execute NPM commands that require the presence of a
@@ -53,7 +31,7 @@ You can execute NPM commands that require the presence of a
 a temporary `package.json` based on your `project.clj` before invoking
 the NPM command you specify. The keys `name`, `description`, `version` and
 `dependencies` are automatically added to `package.json`. Other keys can be
-specified by adding a `:node-js` key in your `project.clj`:
+specified by adding a `:nodejs` key in your `project.clj`:
 
 ```clojure
   :nodejs {:scripts {:test "testem"}}
@@ -64,6 +42,13 @@ $ lein npm install        # installs project dependencies
 $ lein npm ls             # lists installed dependencies
 $ lein npm search nyancat # searches for packages containing "nyancat"
 ```
+
+## Bower dependencies
+
+[lein-bower](https://github.com/chlorinejs/lein-bower) is an other
+Leiningen plugin that helps with [Bower](https://github.com/twitter/bower) dependencies.
+
+lein-bower itself depends on lein-npm
 
 ## Running ClojureScript apps
 
@@ -82,7 +67,7 @@ will be passed through to the Node process.
 
 ## License
 
-Copyright 2012 Bodil Stokke
+Copyright 2012 Bodil Stokke and Hoang Minh Thang
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License. You may

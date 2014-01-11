@@ -13,9 +13,9 @@
   [filename project]
   (io/file (project :root) filename))
 
-(defn- environmental-consistency
-  [project]
-  (doseq [filename ["package.json" "component.json" ".bowerrc"]]
+(defn environmental-consistency
+  [project & files]
+  (doseq [filename files]
     (when (.exists (json-file filename project))
       (do
         (println
@@ -31,7 +31,7 @@
   [project & args]
   (exec (project :root) (cons "npm" args)))
 
-(defn- transform-deps
+(defn transform-deps
   [deps]
   (apply hash-map (flatten deps)))
 
@@ -42,30 +42,15 @@
        (merge {:name (project :name)
                :description (project :description)
                :version (project :version)
-               :dependencies (transform-deps (resolve-node-deps project))})
-       (assoc-in [:scripts :bower] "bower install"))))
+               :dependencies (transform-deps (resolve-node-deps project))}))))
 
-(defn- project->component
-  [project]
-  (json/generate-string
-   {:name (project :name)
-    :description (project :description)
-    :version (project :version)
-    :dependencies (transform-deps
-                   (resolve-node-deps :bower-dependencies project))}))
-
-(defn- project->bowerrc
-  [project]
-  (json/generate-string
-   {:directory (project :bower-directory)}))
-
-(defn- write-json-file
+(defn write-json-file
   [filename content project]
   (doto (json-file filename project)
     (spit content)
     (.deleteOnExit)))
 
-(defn- remove-json-file
+(defn remove-json-file
   [filename project]
   (.delete (json-file filename project)))
 
@@ -79,11 +64,11 @@
 (defn npm
   "Invoke the NPM package manager."
   ([project]
-     (environmental-consistency project)
+     (environmental-consistency project "package.json")
      (println (help/help-for "npm"))
      (main/abort))
   ([project & args]
-     (environmental-consistency project)
+     (environmental-consistency project "package.json")
      (with-json-file "package.json" (project->package project) project
        (apply invoke project args))))
 
@@ -91,12 +76,7 @@
   [project]
   (environmental-consistency project)
   (with-json-file "package.json" (project->package project) project
-    (with-json-file
-      "component.json" (project->component project) project
-      (with-json-file
-        ".bowerrc" (project->bowerrc project) project
-        (invoke project "install")
-        (invoke project "run-script" "bower")))))
+    (invoke project "install")))
 
 (defn wrap-deps
   [f & args]
