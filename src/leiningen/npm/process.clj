@@ -11,4 +11,6 @@
 (defn exec
   [cwd args]
   (let [proc (process cwd args)]
-    (io/copy (.getInputStream proc) (System/out))))
+    (io/copy (.getInputStream proc) (System/out))
+    (.waitFor proc)
+    (.exitValue proc)))

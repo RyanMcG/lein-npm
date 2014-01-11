@@ -29,7 +29,9 @@
 
 (defn- invoke
   [project & args]
-  (exec (project :root) (cons "npm" args)))
+  (let [return-code (exec (project :root) (cons "npm" args))]
+    (when (> return-code 0)
+      (main/exit return-code))))
 
 (defn transform-deps
   [deps]
