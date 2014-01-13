@@ -74,6 +74,13 @@
      (with-json-file "package.json" (project->package project) project
        (apply invoke project args))))
 
+(defn npm-debug
+  [project]
+  (environmental-consistency project)
+  (with-json-file "package.json" (project->package project) project
+    (println (str "lein-npm generated package.json:\n"))
+    (println (slurp "package.json"))))
+
 (defn install-deps
   [project]
   (environmental-consistency project)
