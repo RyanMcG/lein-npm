@@ -45,10 +45,10 @@ $ lein npm search nyancat # searches for packages containing "nyancat"
 
 ## Bower dependencies
 
-[lein-bower](https://github.com/chlorinejs/lein-bower) is an other
-Leiningen plugin that helps with [Bower](https://github.com/twitter/bower) dependencies.
-
-lein-bower itself depends on lein-npm
+[lein-bower](https://github.com/chlorinejs/lein-bower) is a related
+Leiningen plugin that performs the same service for
+[Bower](https://github.com/twitter/bower) dependencies. lein-bower
+itself depends on lein-npm.
 
 ## Running ClojureScript apps
 
