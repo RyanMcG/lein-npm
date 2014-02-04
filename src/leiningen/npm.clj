@@ -44,7 +44,8 @@
        (merge {:name (project :name)
                :description (project :description)
                :version (project :version)
-               :dependencies (transform-deps (resolve-node-deps project))}))))
+               :dependencies (transform-deps (resolve-node-deps project))}))
+   {:pretty true}))
 
 (defn write-json-file
   [filename content project]
@@ -63,6 +64,12 @@
      ~@forms
      (finally (remove-json-file ~filename ~project))))
 
+(defn npm-debug
+  [project]
+  (with-json-file "package.json" (project->package project) project
+    (println "lein-npm generated package.json:\n")
+    (println (slurp "package.json"))))
+
 (defn npm
   "Invoke the NPM package manager."
   ([project]
@@ -71,15 +78,12 @@
      (main/abort))
   ([project & args]
      (environmental-consistency project "package.json")
-     (with-json-file "package.json" (project->package project) project
-       (apply invoke project args))))
-
-(defn npm-debug
-  [project]
-  (environmental-consistency project)
-  (with-json-file "package.json" (project->package project) project
-    (println (str "lein-npm generated package.json:\n"))
-    (println (slurp "package.json"))))
+     (cond
+      (= ["pprint"] args)
+      (npm-debug project)
+      :else
+      (with-json-file "package.json" (project->package project) project
+        (apply invoke project args)))))
 
 (defn install-deps
   [project]
