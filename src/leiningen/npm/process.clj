@@ -1,9 +1,15 @@
 (ns leiningen.npm.process
   (:require [clojure.java.io :as io]))
 
+(defn iswin
+  []
+  (let [os (System/getProperty "os.name")]
+    (-> os .toLowerCase (.contains "windows"))))
+
 (defn- process
   [cwd args]
-  (let [proc (ProcessBuilder. args)]
+  (let [fargs (if (iswin) (concat '("cmd" "/C") args) args)
+        proc  (ProcessBuilder. fargs)]
     (.directory proc (io/file cwd))
     (.redirectErrorStream proc true)
     (.start proc)))

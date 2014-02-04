@@ -4,7 +4,7 @@
             [cheshire.core :as json]
             [clojure.java.io :as io]
             [clojure.java.shell :refer [sh]]
-            [leiningen.npm.process :refer [exec]]
+            [leiningen.npm.process :refer [exec iswin]]
             [leiningen.npm.deps :refer [resolve-node-deps]]
             [robert.hooke]
             [leiningen.deps]))
@@ -12,6 +12,12 @@
 (defn- json-file
   [filename project]
   (io/file (project :root) filename))
+
+(defn- locate-npm
+  []
+  (if (iswin)
+      (sh "cmd" "/C" "for" "%i" "in" "(npm)" "do" "@echo." "%~$PATH:i")
+      (sh "which" "npm")))
 
 (defn environmental-consistency
   [project & files]
@@ -22,7 +28,7 @@
          (format "Your project already has a %s file. " filename)
          "Please remove it.")
         (main/abort))))
-  (when-not (= 0 ((sh "which" "npm") :exit))
+  (when-not (= 0 ((locate-npm) :exit))
     (do
       (println "Unable to find npm on your path. Please install it.")
       (main/abort))))
