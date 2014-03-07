@@ -46,11 +46,12 @@
 (defn- project->package
   [project]
   (json/generate-string
-   (-> (project :nodejs)
-       (merge {:name (project :name)
-               :description (project :description)
-               :version (project :version)
-               :dependencies (transform-deps (resolve-node-deps project))}))
+   (merge {:private true} ;; prevent npm warnings about repository and README
+          (project :nodejs)
+          {:name (project :name)
+           :description (project :description)
+           :version (project :version)
+           :dependencies (transform-deps (resolve-node-deps project))})
    {:pretty true}))
 
 (defn write-json-file
