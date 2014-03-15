@@ -65,6 +65,23 @@ If `:main` is a string that refers to a file that exists and ends with
 install` if necessary. Any command line arguments following `lein run`
 will be passed through to the Node process.
 
+## Changing the directory used
+
+npm does not allow you to put stuff anywhere besides `node_modules`, even
+if that name is [against your religion](https://www.npmjs.org/doc/faq.html),
+however, you can change the root used by lein-npm to be something other than
+your project root like this:
+
+```clojure
+:npm-root "resources/public/js"
+```
+
+Or you can use a keyword to look the path up in your project map:
+
+```clojure
+:npm-root :target-path
+```
+
 ## License
 
 Copyright 2012 Bodil Stokke

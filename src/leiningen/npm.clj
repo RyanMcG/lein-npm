@@ -9,9 +9,16 @@
             [robert.hooke]
             [leiningen.deps]))
 
+(defn- root [project]
+  (if-let [root (project :npm-root)]
+    (if (keyword? root)
+      (project root) ;; e.g. support using :target-path
+      root)
+    (project :root)))
+
 (defn- json-file
   [filename project]
-  (io/file (project :root) filename))
+  (io/file (root project) filename))
 
 (defn- locate-npm
   []
@@ -35,7 +42,7 @@
 
 (defn- invoke
   [project & args]
-  (let [return-code (exec (project :root) (cons "npm" args))]
+  (let [return-code (exec (root project) (cons "npm" args))]
     (when (> return-code 0)
       (main/exit return-code))))
 
@@ -71,10 +78,10 @@
      (finally (remove-json-file ~filename ~project))))
 
 (defn npm-debug
-  [project]
-  (with-json-file "package.json" (project->package project) project
+  [project filename]
+  (with-json-file filename (project->package project) project
     (println "lein-npm generated package.json:\n")
-    (println (slurp "package.json"))))
+    (println (slurp (json-file filename project)))))
 
 (defn npm
   "Invoke the NPM package manager."
@@ -86,7 +93,7 @@
      (environmental-consistency project "package.json")
      (cond
       (= ["pprint"] args)
-      (npm-debug project)
+      (npm-debug project "package.json")
       :else
       (with-json-file "package.json" (project->package project) project
         (apply invoke project args)))))
