@@ -61,9 +61,14 @@ your `project.clj`, like this:
 ```
 
 If `:main` is a string that refers to a file that exists and ends with
-`.js`, it will launch this file using Node, after first running `npm
-install` if necessary. Any command line arguments following `lein run`
-will be passed through to the Node process.
+`.js`, it will launch this file using `npm start`, after first running
+`npm install` if necessary. Any command line arguments following `lein
+run` will be passed through to the Node process. Note that a
+`scripts.start` record will be automatically added to the generated
+`package.json` file, simply containing `node <value of :main>`, but
+you can override this using the `:nodejs` key as described above. The
+`:main` key will still have to exist and point to a file ending in
+`.js`, though, or `lein run` will stay with its default behaviour.
 
 ## Changing the directory used
 
