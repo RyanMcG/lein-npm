@@ -54,13 +54,13 @@
   [project]
   (json/generate-string
    (merge {:private true} ;; prevent npm warnings about repository and README
-          (project :nodejs)
           {:name (project :name)
            :description (project :description)
            :version (project :version)
            :dependencies (transform-deps (resolve-node-deps project))}
           (when-let [main (project :main)]
-            {:scripts {:start (str "node " main)}}))
+            {:scripts {:start (str "node " main)}})
+          (project :nodejs))
    {:pretty true}))
 
 (defn write-json-file
