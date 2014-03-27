@@ -58,7 +58,9 @@
           {:name (project :name)
            :description (project :description)
            :version (project :version)
-           :dependencies (transform-deps (resolve-node-deps project))})
+           :dependencies (transform-deps (resolve-node-deps project))}
+          (when-let [main (project :main)]
+            {:scripts {:start (str "node " main)}}))
    {:pretty true}))
 
 (defn write-json-file
