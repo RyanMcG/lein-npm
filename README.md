@@ -7,7 +7,9 @@ Leiningen plugin for enabling Node based ClojureScript projects.
 To enable lein-npm for your project, put the following in the
 `:plugins` vector of your `project.clj` file:
 
-![Latest version](https://clojars.org/lein-npm/latest-version.svg)
+```clojure
+[lein-npm "0.4.0"]
+```
 
 ## Managing NPM dependencies
 
