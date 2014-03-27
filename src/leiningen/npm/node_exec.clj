@@ -1,6 +1,6 @@
 (ns leiningen.npm.node-exec
   (:require [leiningen.npm.process :refer [exec]]
-            [leiningen.npm :refer [install-deps]]
+            [leiningen.npm :refer [install-deps npm]]
             [clojure.java.io :as io]
             [robert.hooke :as hooke]
             [leiningen.run]))
@@ -14,7 +14,7 @@
              (re-matches #".*\.js$" main))
       (do
         (install-deps project)
-        (exec (project :root) (concat ["node" main] (rest args))))
+        (apply npm project (cons "start" (rest args))))
       (apply f args))))
 
 (defn install-hooks []
