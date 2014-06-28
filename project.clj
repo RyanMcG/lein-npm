@@ -1,4 +1,4 @@
-(defproject lein-npm "0.4.0"
+(defproject arohner/lein-npm "0.4.1"
   :description "Manage Node dependencies for CLJS projects"
   :url "https://github.com/bodil/lein-npm"
   :license {:name "Apache License, version 2.0"
