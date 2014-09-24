@@ -34,6 +34,24 @@
            (keep (comp name :name))
            (set))))
 
+(defn- find-project-form
+  "Find the first form where the first element is the symbol defproject in the
+  given top-level forms."
+  [forms]
+  (letfn [(fpf [form]
+            (if (list? form)
+              (if (= 'defproject (first form))
+                form
+                (find-project-form form))))]
+    (->> forms
+         (map fpf)
+         (keep identity)
+         (first))))
+
+(defn- read-project-form [input-stream]
+  (->> (str \( (slurp input-stream) \))
+       (read-string)
+       (find-project-form)))
 
 (defn- resolve-in-jar-dep
   "Resolves a given lookup-key in the project definiton in a given
@@ -43,7 +61,9 @@
   [lookup-key exclusions jar-file]
   (let [jar-project-entry (.getEntry jar-file "project.clj")
         jar-project-src (when jar-project-entry
-                          (read-string (slurp (.getInputStream jar-file jar-project-entry))))
+                          (-> jar-file
+                              (.getInputStream jar-project-entry)
+                              (read-project-form)))
         jar-project-map (when jar-project-src
                           (->> jar-project-src (drop 3) (apply hash-map)))
         jar-project-name (when jar-project-src
