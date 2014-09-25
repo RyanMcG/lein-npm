@@ -10,7 +10,7 @@
             [leiningen.deps]))
 
 (defn- root [project]
-  (if-let [root (project :npm-root)]
+  (if-let [root (get-in [:npm :root] project)]
     (if (keyword? root)
       (project root) ;; e.g. support using :target-path
       root)
