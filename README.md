@@ -80,13 +80,13 @@ however, you can change the root used by lein-npm to be something other than
 your project root like this:
 
 ```clojure
-:npm-root "resources/public/js"
+:npm {:root "resources/public/js"}
 ```
 
 Or you can use a keyword to look the path up in your project map:
 
 ```clojure
-:npm-root :target-path
+:npm {:root :target-path}
 ```
 
 ## License
