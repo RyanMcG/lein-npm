@@ -33,10 +33,10 @@ You can execute npm commands that require the presence of a
 a temporary `package.json` based on your `project.clj` before invoking
 the npm command you specify. The keys `name`, `description`, `version` and
 `dependencies` are automatically added to `package.json`. Other keys can be
-specified by adding a `:nodejs` key in your `project.clj`:
+specified in your `project.clj` at `:package` under `:npm`.:
 
 ```clojure
-  :nodejs {:scripts {:test "testem"}}
+  :npm {:package {:scripts {:test "testem"}}}
 ```
 
 ```sh
@@ -68,9 +68,9 @@ If `:main` is a string that refers to a file that exists and ends with
 run` will be passed through to the Node process. Note that a
 `scripts.start` record will be automatically added to the generated
 `package.json` file, simply containing `node <value of :main>`, but
-you can override this using the `:nodejs` key as described above. The
-`:main` key will still have to exist and point to a file ending in
-`.js`, though, or `lein run` will stay with its default behaviour.
+you can override this using the `:pacakge` key under `:npm` as described above.
+The `:main` key will still have to exist and point to a file ending in `.js`,
+though, or `lein run` will stay with its default behaviour.
 
 ## Changing the directory used
 
