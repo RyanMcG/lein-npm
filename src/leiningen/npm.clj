@@ -87,7 +87,7 @@
     (println (slurp (json-file filename project)))))
 
 (defn npm
-  "Invoke the NPM package manager."
+  "Invoke the npm package manager."
   ([project]
      (environmental-consistency project "package.json")
      (println (help/help-for "npm"))

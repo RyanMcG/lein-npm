@@ -22,9 +22,9 @@ You can specify a project's npm dependencies by adding an `:npm` map to your
                      [mongodb "1.2.7"]]}
 ```
 
-These dependencies, and any npm dependencies of packages pulled in
-through the regular `:dependencies`, will be installed through npm
-when you run either `lein npm install` or `lein deps`.
+These dependencies, and any npm dependencies of packages pulled in through the
+regular `:dependencies`, will be installed through npm when you run either
+`lein npm install` or `lein deps`.
 
 ## Invoking npm
 
