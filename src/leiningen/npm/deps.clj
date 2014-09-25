@@ -100,6 +100,11 @@
            (keep lookup-deps)
            (reduce concat))))
 
+(defn- default-lookup-deps [project]
+  (get-in project
+          [:npm :dependencies]
+          (:node-dependencies project)))
+
 (defn resolve-node-deps
   ([lookup-deps project]
      (let [deps (concat (lookup-deps project)
@@ -107,4 +112,4 @@
                         (resolve-in-checkouts-deps lookup-deps (:root project)))]
        deps))
   ([project]
-     (resolve-node-deps :node-dependencies project)))
+     (resolve-node-deps default-lookup-deps project)))
