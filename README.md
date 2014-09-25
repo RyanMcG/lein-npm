@@ -13,17 +13,17 @@ To enable lein-npm for your project, put the following in the
 
 ## Managing npm dependencies
 
-You can specify a project's npm dependencies by adding a
-`:node-dependencies` key in your `project.clj`:
+You can specify a project's npm dependencies by adding an `:npm` map to your
+`project.clj` with a `:dependencies` key.
 
 ```clojure
-:node-dependencies [[underscore "1.4.3"]
-                    [nyancat "0.0.3"]
-                    [mongodb "1.2.7"]]
+:npm {:dependencies [[underscore "1.4.3"]
+                     [nyancat "0.0.3"]
+                     [mongodb "1.2.7"]]}
 ```
 
-These dependencies, and any `:node-dependencies` of packages pulled in
-through the regular `:dependencies`, will be installed through NPM
+These dependencies, and any npm dependencies of packages pulled in
+through the regular `:dependencies`, will be installed through npm
 when you run either `lein npm install` or `lein deps`.
 
 ## Invoking npm
@@ -31,7 +31,7 @@ when you run either `lein npm install` or `lein deps`.
 You can execute npm commands that require the presence of a
 `package.json` file using the `lein npm` command. This command creates
 a temporary `package.json` based on your `project.clj` before invoking
-the NPM command you specify. The keys `name`, `description`, `version` and
+the npm command you specify. The keys `name`, `description`, `version` and
 `dependencies` are automatically added to `package.json`. Other keys can be
 specified by adding a `:nodejs` key in your `project.clj`:
 
