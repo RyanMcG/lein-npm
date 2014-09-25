@@ -60,7 +60,7 @@
            :dependencies (transform-deps (resolve-node-deps project))}
           (when-let [main (project :main)]
             {:scripts {:start (str "node " main)}})
-          (project :nodejs))
+          (get-in [:npm :package] project))
    {:pretty true}))
 
 (defn write-json-file
