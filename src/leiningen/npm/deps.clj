@@ -73,13 +73,19 @@
     (when (not (contains? exclusions jar-project-name))
       jar-project-deps)))
 
+(defn resolve-repositories [project]
+  (->> (:repositories project)
+       (map (fn [[name repo]]
+              [name (leiningen.core.user/resolve-credentials repo)]))
+       (into {})))
+
 (defn- resolve-in-jar-deps
   "Resolves a given lookup-key in all the project definitions for jar
   dependencies of a project. Excludes any Clojure project jars that
   are named in a set of exclusions."
   [lookup-key project exclusions]
   (->> (a/resolve-dependencies :coordinates (project :dependencies)
-                               :repositories (project :repositories))
+                               :repositories (resolve-repositories (project :repositories)))
        (a/dependency-files)
        (map #(JarFile. %))
        (keep (partial resolve-in-jar-dep lookup-key exclusions))
