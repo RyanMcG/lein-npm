@@ -73,13 +73,37 @@
     (when (not (contains? exclusions jar-project-name))
       jar-project-deps)))
 
+(defn- get-non-proxy-hosts []
+  (let [system-no-proxy (System/getenv "no_proxy")
+        lein-no-proxy (System/getenv "http_no_proxy")]
+    (if (and (empty? lein-no-proxy) (not-empty system-no-proxy))
+      (->> (str/split system-no-proxy #",")
+           (map #(str "*" %))
+           (str/join "|"))
+      (System/getenv "http_no_proxy"))))
+
+(defn- get-proxy-settings
+  "Returns a map of the JVM proxy settings"
+  ([] (get-proxy-settings "http_proxy"))
+  ([key]
+     (if-let [proxy (System/getenv key)]
+       (let [url (utils/build-url proxy)
+             user-info (.getUserInfo url)
+             [username password] (and user-info (.split user-info ":"))]
+         {:host (.getHost url)
+          :port (.getPort url)
+          :username username
+          :password password
+          :non-proxy-hosts (get-non-proxy-hosts)}))))
+
 (defn- resolve-in-jar-deps
   "Resolves a given lookup-key in all the project definitions for jar
   dependencies of a project. Excludes any Clojure project jars that
   are named in a set of exclusions."
   [lookup-key project exclusions]
   (->> (a/resolve-dependencies :coordinates (project :dependencies)
-                               :repositories (project :repositories))
+                               :repositories (project :repositories)
+                               :proxy (get-proxy-settings))
        (a/dependency-files)
        (map #(JarFile. %))
        (keep (partial resolve-in-jar-dep lookup-key exclusions))
