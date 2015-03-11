@@ -53,8 +53,8 @@
     (when (not (contains? exclusions jar-project-name))
       jar-project-deps)))
 
-(defn resolve-repositories [project]
-  (->> (:repositories project)
+(defn resolve-repositories [repos]
+  (->> repos
        (map (fn [[name repo]]
               [name (leiningen.core.user/resolve-credentials repo)]))
        (into {})))
