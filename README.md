@@ -75,7 +75,7 @@ you can override this using the `:nodejs` key as described above. The
 ## Changing the directory used
 
 npm does not allow you to put stuff anywhere besides `node_modules`, even
-if that name is [against your religion](https://www.npmjs.org/doc/faq.html),
+if that name is [against your religion](https://docs.npmjs.com/misc/faq#node-modules-is-the-name-of-my-deity-s-arch-rival-and-a-forbidden-word-in-my-religion-can-i-configure-npm-to-use-a-different-folder),
 however, you can change the root used by lein-npm to be something other than
 your project root like this:
 
