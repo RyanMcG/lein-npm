@@ -54,7 +54,7 @@
        (find-project-form)))
 
 (defn- resolve-in-jar-dep
-  "Finds dependencies in the project definiton in a given jar-file using
+  "Finds dependencies in the project definition in a given jar-file using
   lookup-deps, if a project.clj is found in it. Nil when there are no
   dependencies, or when the jar's project is in the given exclusions set."
   [lookup-deps exclusions jar-file]
