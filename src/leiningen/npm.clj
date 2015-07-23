@@ -17,9 +17,13 @@
       root)
     (project :root)))
 
-(defn- json-file
+(defn- project-file
   [filename project]
   (io/file (root project) filename))
+
+(def ^:const package-file-name  "package.json")
+
+(defn- package-file-from-project [p] (project-file package-file-name p))
 
 (defn- locate-npm
   []
@@ -28,14 +32,13 @@
       (sh "which" "npm")))
 
 (defn environmental-consistency
-  [project & files]
-  (doseq [filename files]
-    (when (.exists (json-file filename project))
-      (do
-        (println
-         (format "Your project already has a %s file. " filename)
-         "Please remove it.")
-        (main/abort))))
+  [project]
+  (when (.exists (package-file-from-project project))
+    (do
+      (println
+        (format "Your project already has a %s file. " package-file-name)
+        "Please remove it.")
+      (main/abort)))
   (when-not (= 0 ((locate-npm) :exit))
     (do
       (println "Unable to find npm on your path. Please install it.")
@@ -64,28 +67,29 @@
           (get-in [:npm :package] project))
    {:pretty true}))
 
-(defn write-json-file
-  [filename content project]
-  (doto (json-file filename project)
+(defn- write-ephemeral-file
+  [file content]
+  (doto file
     (spit content)
     (.deleteOnExit)))
 
-(defn remove-json-file
-  [filename project]
-  (.delete (json-file filename project)))
-
-(defmacro with-json-file
-  [filename content project & forms]
+(defmacro with-ephemeral-file
+  [file content & forms]
   `(try
-     (write-json-file ~filename ~content ~project)
+     (write-ephemeral-file ~file ~content)
      ~@forms
-     (finally (remove-json-file ~filename ~project))))
+     (finally (.delete ~file))))
+
+(defmacro with-ephemeral-package-json [project & body]
+  `(with-ephemeral-file (package-file-from-project ~project)
+                        (project->package ~project)
+     ~@body))
 
 (defn npm-debug
-  [project filename]
-  (with-json-file filename (project->package project) project
+  [project]
+  (with-ephemeral-package-json project
     (println "lein-npm generated package.json:\n")
-    (println (slurp (json-file filename project)))))
+    (println (slurp (package-file-from-project project)))))
 
 (def key-deprecations
   "Mappings from old keys to new keys in :npm."
@@ -114,25 +118,25 @@
 (defn npm
   "Invoke the npm package manager."
   ([project]
-     (environmental-consistency project "package.json")
+     (environmental-consistency project)
      (warn-about-deprecation project)
      (println (help/help-for "npm"))
      (main/abort))
   ([project & args]
-     (environmental-consistency project "package.json")
+     (environmental-consistency project)
      (warn-about-deprecation project)
      (cond
       (= ["pprint"] args)
-      (npm-debug project "package.json")
+      (npm-debug project)
       :else
-      (with-json-file "package.json" (project->package project) project
+      (with-ephemeral-package-json project
         (apply invoke project args)))))
 
 (defn install-deps
   [project]
   (environmental-consistency project)
   (warn-about-deprecation project)
-  (with-json-file "package.json" (project->package project) project
+  (with-ephemeral-package-json project
     (invoke project "install")))
 
 ; Only run install-deps via wrap-deps once. For some reason it is being called
