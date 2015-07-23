@@ -3,6 +3,7 @@
             [leiningen.core.main :as main]
             [cheshire.core :as json]
             [clojure.java.io :as io]
+            [clojure.set :as set]
             [clojure.java.shell :refer [sh]]
             [leiningen.npm.process :refer [exec iswin]]
             [leiningen.npm.deps :refer [resolve-node-deps]]
@@ -86,14 +87,40 @@
     (println "lein-npm generated package.json:\n")
     (println (slurp (json-file filename project)))))
 
+(def key-deprecations
+  "Mappings from old keys to new keys in :npm."
+  {:nodejs :package
+   :node-dependencies :dependencies
+   :npm-root :root})
+
+(def deprecated-keys (set (keys key-deprecations)))
+
+(defn select-deprecated-keys
+  "Returns a set of deprecated keys present in the given project."
+  [project]
+  (set/difference deprecated-keys
+                  (set/difference deprecated-keys
+                                  (set (keys project)))))
+
+(defn- generate-deprecation-warning [used-key]
+  (str used-key " is deprecated. Use " (key-deprecations used-key)
+       " in an :npm map instead."))
+
+(defn warn-about-deprecation [project]
+  (if-let [used-deprecated-keys (seq (select-deprecated-keys project))]
+    (doseq [dk used-deprecated-keys]
+      (main/warn "WARNING:" (generate-deprecation-warning dk)))))
+
 (defn npm
   "Invoke the npm package manager."
   ([project]
      (environmental-consistency project "package.json")
+     (warn-about-deprecation project)
      (println (help/help-for "npm"))
      (main/abort))
   ([project & args]
      (environmental-consistency project "package.json")
+     (warn-about-deprecation project)
      (cond
       (= ["pprint"] args)
       (npm-debug project "package.json")
@@ -104,6 +131,7 @@
 (defn install-deps
   [project]
   (environmental-consistency project)
+  (warn-about-deprecation project)
   (with-json-file "package.json" (project->package project) project
     (invoke project "install")))
 
