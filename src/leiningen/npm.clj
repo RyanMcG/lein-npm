@@ -135,10 +135,20 @@
   (with-json-file "package.json" (project->package project) project
     (invoke project "install")))
 
+; Only run install-deps via wrap-deps once. For some reason it is being called
+; multiple times with when using `lein deps` and I cannot determine why.
+(defonce install-locked (atom false))
+
 (defn wrap-deps
   [f & args]
-  (apply f args)
-  (install-deps (first args)))
+  (if @install-locked
+    (apply f args)
+    (do
+      (reset! install-locked true)
+      (let [ret (apply f args)]
+        (install-deps (first args))
+        (reset! install-locked false)
+        ret))))
 
 (defn install-hooks []
   (robert.hooke/add-hook #'leiningen.deps/deps wrap-deps))
