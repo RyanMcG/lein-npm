@@ -54,11 +54,10 @@
        (find-project-form)))
 
 (defn- resolve-in-jar-dep
-  "Resolves a given lookup-key in the project definiton in a given
-  jar-file, if a project.clj is found in it. Nil when there are no
-  dependencies, or when the jar's project is in the given exclusions
-  set."
-  [lookup-key exclusions jar-file]
+  "Finds dependencies in the project definition in a given jar-file using
+  lookup-deps, if a project.clj is found in it. Nil when there are no
+  dependencies, or when the jar's project is in the given exclusions set."
+  [lookup-deps exclusions jar-file]
   (let [jar-project-entry (.getEntry jar-file "project.clj")
         jar-project-src (when jar-project-entry
                           (-> jar-file
@@ -69,7 +68,7 @@
         jar-project-name (when jar-project-src
                            (name (second jar-project-src)))
         jar-project-deps (when jar-project-map
-                           (jar-project-map lookup-key))]
+                           (lookup-deps jar-project-map))]
     (when (not (contains? exclusions jar-project-name))
       jar-project-deps)))
 
@@ -80,32 +79,37 @@
        (into {})))
 
 (defn- resolve-in-jar-deps
-  "Resolves a given lookup-key in all the project definitions for jar
-  dependencies of a project. Excludes any Clojure project jars that
-  are named in a set of exclusions."
-  [lookup-key project exclusions]
+  "Finds dependencies in a project definition using lookup-deps in all the
+  project definitions for jar dependencies of a project. Excludes any Clojure
+  project jars that are named in a set of exclusions."
+  [lookup-deps project exclusions]
   (->> (a/resolve-dependencies :coordinates (project :dependencies)
                                :repositories (resolve-repositories (project :repositories)))
        (a/dependency-files)
        (map #(JarFile. %))
-       (keep (partial resolve-in-jar-dep lookup-key exclusions))
+       (keep (partial resolve-in-jar-dep lookup-deps exclusions))
        (reduce concat)))
 
 (defn- resolve-in-checkouts-deps
-  "Resolves a given lookup-key in all the project.clj definitions for
+  "Finds dependencies, using lookup-deps, in all the project.clj definitions for
   checkouts dependencies under a given project root."
-  [lookup-key root]
+  [lookup-deps root]
   (-> (io/file root "checkouts")
       (.list)
       (->> (keep (partial read-checkouts-project root))
-           (keep lookup-key)
+           (keep lookup-deps)
            (reduce concat))))
 
+(defn- default-lookup-deps [project]
+  (get-in project
+          [:npm :dependencies]
+          (:node-dependencies project)))
+
 (defn resolve-node-deps
-  ([lookup-key project]
-     (let [deps (concat (project lookup-key)
-                        (resolve-in-jar-deps lookup-key project (scan-checkouts-projects (:root project)))
-                        (resolve-in-checkouts-deps lookup-key (:root project)))]
+  ([lookup-deps project]
+     (let [deps (concat (lookup-deps project)
+                        (resolve-in-jar-deps lookup-deps project (scan-checkouts-projects (:root project)))
+                        (resolve-in-checkouts-deps lookup-deps (:root project)))]
        deps))
   ([project]
-     (resolve-node-deps :node-dependencies project)))
+     (resolve-node-deps default-lookup-deps project)))

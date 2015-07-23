@@ -13,30 +13,30 @@ To enable lein-npm for your project, put the following in the
 
 ## Managing npm dependencies
 
-You can specify a project's npm dependencies by adding a
-`:node-dependencies` key in your `project.clj`:
+You can specify a project's npm dependencies by adding an `:npm` map to your
+`project.clj` with a `:dependencies` key.
 
 ```clojure
-:node-dependencies [[underscore "1.4.3"]
-                    [nyancat "0.0.3"]
-                    [mongodb "1.2.7"]]
+:npm {:dependencies [[underscore "1.4.3"]
+                     [nyancat "0.0.3"]
+                     [mongodb "1.2.7"]]}
 ```
 
-These dependencies, and any `:node-dependencies` of packages pulled in
-through the regular `:dependencies`, will be installed through NPM
-when you run either `lein npm install` or `lein deps`.
+These dependencies, and any npm dependencies of packages pulled in through the
+regular `:dependencies`, will be installed through npm when you run either
+`lein npm install` or `lein deps`.
 
 ## Invoking npm
 
 You can execute npm commands that require the presence of a
 `package.json` file using the `lein npm` command. This command creates
 a temporary `package.json` based on your `project.clj` before invoking
-the NPM command you specify. The keys `name`, `description`, `version` and
+the npm command you specify. The keys `name`, `description`, `version` and
 `dependencies` are automatically added to `package.json`. Other keys can be
-specified by adding a `:nodejs` key in your `project.clj`:
+specified in your `project.clj` at `:package` under `:npm`.:
 
 ```clojure
-  :nodejs {:scripts {:test "testem"}}
+  :npm {:package {:scripts {:test "testem"}}}
 ```
 
 ```sh
@@ -68,9 +68,9 @@ If `:main` is a string that refers to a file that exists and ends with
 run` will be passed through to the Node process. Note that a
 `scripts.start` record will be automatically added to the generated
 `package.json` file, simply containing `node <value of :main>`, but
-you can override this using the `:nodejs` key as described above. The
-`:main` key will still have to exist and point to a file ending in
-`.js`, though, or `lein run` will stay with its default behaviour.
+you can override this using the `:pacakge` key under `:npm` as described above.
+The `:main` key will still have to exist and point to a file ending in `.js`,
+though, or `lein run` will stay with its default behaviour.
 
 ## Changing the directory used
 
@@ -80,13 +80,13 @@ however, you can change the root used by lein-npm to be something other than
 your project root like this:
 
 ```clojure
-:npm-root "resources/public/js"
+:npm {:root "resources/public/js"}
 ```
 
 Or you can use a keyword to look the path up in your project map:
 
 ```clojure
-:npm-root :target-path
+:npm {:root :target-path}
 ```
 
 ## License
