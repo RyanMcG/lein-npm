@@ -1,4 +1,4 @@
-# lein-npm
+# lein-npm [![Build Status](https://travis-ci.org/RyanMcG/lein-npm.svg?branch=master)](https://travis-ci.org/RyanMcG/lein-npm)
 
 Leiningen plugin for enabling Node based ClojureScript projects.
 
