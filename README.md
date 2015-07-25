@@ -8,7 +8,7 @@ To enable lein-npm for your project, put the following in the
 `:plugins` vector of your `project.clj` file:
 
 ```clojure
-[lein-npm "0.5.1"]
+[lein-npm "0.6.0"]
 ```
 
 ## Managing npm dependencies
