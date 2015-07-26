@@ -11,7 +11,7 @@
             [leiningen.deps]))
 
 (defn- root [project]
-  (if-let [root (get-in [:npm :root] project)]
+  (if-let [root (get-in project [:npm :root])]
     (if (keyword? root)
       (project root) ;; e.g. support using :target-path
       root)
@@ -64,7 +64,7 @@
            :dependencies (transform-deps (resolve-node-deps project))}
           (when-let [main (project :main)]
             {:scripts {:start (str "node " main)}})
-          (get-in [:npm :package] project))
+          (get-in project [:npm :package]))
    {:pretty true}))
 
 (defn- write-ephemeral-file
