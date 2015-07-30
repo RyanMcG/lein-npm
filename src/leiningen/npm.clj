@@ -70,6 +70,7 @@
 (defn- write-ephemeral-file
   [file content]
   (doto file
+    (-> .getParentFile .mkdirs)
     (spit content)
     (.deleteOnExit)))
 
