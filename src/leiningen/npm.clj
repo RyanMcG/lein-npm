@@ -57,14 +57,35 @@
   [deps]
   (apply hash-map (flatten deps)))
 
+(defn- read-package
+  [project]
+  (let [file (package-file-from-project project)]
+    (when (.exists file)
+      (try
+        (json/parse-string (slurp file) true)))))
+
+(defn- unique-dependencies
+  [file-deps lein-deps]
+  (into {}
+    (map (fn [x] {(keyword (first x)) (last x)})
+      (distinct (concat file-deps lein-deps)))))
+
+(defn- merge-dependencies
+  [project]
+  (let [loaded-package (read-package project)]
+    (merge loaded-package
+      {:dependencies (unique-dependencies
+                       (transform-deps (resolve-node-deps project))
+                       (:dependencies loaded-package))})))
+
 (defn- project->package
   [project]
   (json/generate-string
    (merge {:private true} ;; prevent npm warnings about repository and README
           {:name (project :name)
            :description (project :description)
-           :version (project :version)
-           :dependencies (transform-deps (resolve-node-deps project))}
+           :version (project :version)}
+          (merge-dependencies project)
           (when-let [main (project :main)]
             {:scripts {:start (str "node " main)}})
           (get-in project [:npm :package]))
