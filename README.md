@@ -68,7 +68,7 @@ If `:main` is a string that refers to a file that exists and ends with
 run` will be passed through to the Node process. Note that a
 `scripts.start` record will be automatically added to the generated
 `package.json` file, simply containing `node <value of :main>`, but
-you can override this using the `:pacakge` key under `:npm` as described above.
+you can override this using the `:package` key under `:npm` as described above.
 The `:main` key will still have to exist and point to a file ending in `.js`,
 though, or `lein run` will stay with its default behaviour.
 
