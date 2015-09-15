@@ -28,16 +28,16 @@
 (defn- locate-npm
   []
   (if (iswin)
-      (sh "cmd" "/C" "for" "%i" "in" "(npm)" "do" "@echo." "%~$PATH:i")
-      (sh "which" "npm")))
+    (sh "cmd" "/C" "for" "%i" "in" "(npm)" "do" "@echo." "%~$PATH:i")
+    (sh "which" "npm")))
 
 (defn environmental-consistency
   [project]
   (when (.exists (package-file-from-project project))
     (do
       (println
-        (format "Your project already has a %s file. " package-file-name)
-        "Please remove it.")
+       (format "Your project already has a %s file. " package-file-name)
+       "Please remove it.")
       (main/abort)))
   (when-not (= 0 ((locate-npm) :exit))
     (do
@@ -83,7 +83,19 @@
 
 (defmacro with-ephemeral-package-json [project & body]
   `(with-ephemeral-file (package-file-from-project ~project)
-                        (project->package ~project)
+     (project->package ~project)
+     ~@body))
+
+(defn- write-file
+  [file content]
+  (doto file
+    (-> .getParentFile .mkdirs)
+    (spit content)))
+
+(defmacro with-package-json [project & body]
+  `(do
+     (write-file (package-file-from-project ~project)
+                 (project->package ~project))
      ~@body))
 
 (defn npm-debug
@@ -119,19 +131,22 @@
 (defn npm
   "Invoke the npm package manager."
   ([project]
-     (environmental-consistency project)
-     (warn-about-deprecation project)
-     (println (help/help-for "npm"))
-     (main/abort))
+   (environmental-consistency project)
+   (warn-about-deprecation project)
+   (println (help/help-for "npm"))
+   (main/abort))
   ([project & args]
-     (environmental-consistency project)
-     (warn-about-deprecation project)
-     (cond
-      (= ["pprint"] args)
-      (npm-debug project)
-      :else
-      (with-ephemeral-package-json project
-        (apply invoke project args)))))
+   (environmental-consistency project)
+   (warn-about-deprecation project)
+   (cond
+    (and (last args) (= "-k" (.trim (last args))))
+    (with-package-json project
+      (apply invoke project (butlast args)))
+    (= ["pprint"] args)
+    (npm-debug project)
+    :else
+    (with-ephemeral-package-json project
+      (apply invoke project args)))))
 
 (defn install-deps
   [project]
