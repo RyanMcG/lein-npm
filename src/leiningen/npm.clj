@@ -31,14 +31,17 @@
       (sh "cmd" "/C" "for" "%i" "in" "(npm)" "do" "@echo." "%~$PATH:i")
       (sh "which" "npm")))
 
+(defn- persist-package-json? [project]
+  (get-in project [:npm :persist] false))
+
 (defn environmental-consistency
   [project]
-  (when (.exists (package-file-from-project project))
-    (do
-      (println
-        (format "Your project already has a %s file. " package-file-name)
-        "Please remove it.")
-      (main/abort)))
+  (when (and (not (persist-package-json? project))
+          (.exists (package-file-from-project project)))
+    (println
+      (format "Your project already has a %s file. " package-file-name)
+      "Please remove it.")
+    (main/abort))
   (when-not (= 0 ((locate-npm) :exit))
     (do
       (println "Unable to find npm on your path. Please install it.")
@@ -54,14 +57,35 @@
   [deps]
   (apply hash-map (flatten deps)))
 
+(defn- read-package
+  [project]
+  (let [file (package-file-from-project project)]
+    (when (.exists file)
+      (try
+        (json/parse-string (slurp file) true)))))
+
+(defn- unique-dependencies
+  [file-deps lein-deps]
+  (into {}
+    (map (fn [x] {(keyword (first x)) (last x)})
+      (distinct (concat file-deps lein-deps)))))
+
+(defn- merge-dependencies
+  [project]
+  (let [loaded-package (read-package project)]
+    (merge loaded-package
+      {:dependencies (unique-dependencies
+                       (transform-deps (resolve-node-deps project))
+                       (:dependencies loaded-package))})))
+
 (defn- project->package
   [project]
   (json/generate-string
    (merge {:private true} ;; prevent npm warnings about repository and README
           {:name (project :name)
            :description (project :description)
-           :version (project :version)
-           :dependencies (transform-deps (resolve-node-deps project))}
+           :version (project :version)}
+          (merge-dependencies project)
           (when-let [main (project :main)]
             {:scripts {:start (str "node " main)}})
           (get-in project [:npm :package]))
@@ -81,14 +105,25 @@
      ~@forms
      (finally (.delete ~file))))
 
-(defmacro with-ephemeral-package-json [project & body]
-  `(with-ephemeral-file (package-file-from-project ~project)
-                        (project->package ~project)
-     ~@body))
+(defn- write-file
+  [file content]
+  (doto file
+       (-> .getParentFile .mkdirs)
+       (spit content)))
+
+(defmacro with-package-json
+  [project & body]
+  `(let [file# (package-file-from-project ~project)
+         project-json# (project->package ~project)]
+     (if (persist-package-json? ~project)
+       (do
+         (write-file file# project-json#)
+         ~@body)
+       (with-ephemeral-file file# project-json# ~@body))))
 
 (defn npm-debug
   [project]
-  (with-ephemeral-package-json project
+  (with-package-json project
     (println "lein-npm generated package.json:\n")
     (println (slurp (package-file-from-project project)))))
 
@@ -130,14 +165,14 @@
       (= ["pprint"] args)
       (npm-debug project)
       :else
-      (with-ephemeral-package-json project
+      (with-package-json project
         (apply invoke project args)))))
 
 (defn install-deps
   [project]
   (environmental-consistency project)
   (warn-about-deprecation project)
-  (with-ephemeral-package-json project
+  (with-package-json project
     (invoke project "install")))
 
 ; Only run install-deps via wrap-deps once. For some reason it is being called
