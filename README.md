@@ -19,7 +19,9 @@ You can specify a project's npm dependencies by adding an `:npm` map to your
 ```clojure
 :npm {:dependencies [[underscore "1.4.3"]
                      [nyancat "0.0.3"]
-                     [mongodb "1.2.7"]]}
+                     [mongodb "1.2.7"]
+                     ;; Other types of dependencies (github, private npm, etc.) can be passed as a string
+                     ["your_username/your-module" "0.1.O"]]}
 ```
 
 These dependencies, and any npm dependencies of packages pulled in through the
