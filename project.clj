@@ -1,4 +1,4 @@
-(defproject lein-npm "0.6.1"
+(defproject lein-npm "0.6.2"
   :description "Manage npm dependencies for CLJS projects"
   :url "https://github.com/RyanMcG/lein-npm"
   :license {:name "Apache License, version 2.0"
