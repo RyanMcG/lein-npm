@@ -4,17 +4,18 @@
             [robert.hooke :as hooke]
             [leiningen.run]))
 
+(defn- existing-js-file-path? [path]
+  (and (string? path)
+       (re-matches #".*\.js$" path)
+       (.exists (io/file path))))
+
 (defn wrap-run
-  [f & args]
-  (let [project (first args)
-        main (project :main)]
-    (if (and (string? main)
-             (.exists (io/file main))
-             (re-matches #".*\.js$" main))
-      (do
-        (install-deps project)
-        (apply npm project (cons "start" (rest args))))
-      (apply f args))))
+  [f {:keys [main] :as project} & args]
+  (if (existing-js-file-path? main)
+    (do
+      (install-deps project)
+      (apply npm project "start" args))
+    (apply f project args)))
 
 (defn install-hooks []
   (hooke/add-hook #'leiningen.run/run wrap-run))
