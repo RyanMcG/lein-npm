@@ -1,6 +1,5 @@
 (ns leiningen.npm.node-exec
-  (:require [leiningen.npm.process :refer [exec]]
-            [leiningen.npm :refer [install-deps npm]]
+  (:require [leiningen.npm :refer [install-deps npm]]
             [clojure.java.io :as io]
             [robert.hooke :as hooke]
             [leiningen.run]))
