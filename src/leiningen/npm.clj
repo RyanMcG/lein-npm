@@ -62,6 +62,8 @@
            :description (project :description)
            :version (project :version)
            :dependencies (transform-deps (resolve-node-deps project))}
+          (when-let [dev-deps  (get-in project [:npm :devDependencies])]
+            {:devDependencies (transform-deps dev-deps)})
           (when-let [main (project :main)]
             {:scripts {:start (str "node " main)}})
           (get-in project [:npm :package]))
