@@ -21,7 +21,9 @@ You can specify a project's npm dependencies by adding an `:npm` map to your
                      [nyancat "0.0.3"]
                      [mongodb "1.2.7"]
                      ;; Other types of dependencies (github, private npm, etc.) can be passed as a string
-                     ["your_username/your-module" "0.1.O"]]}
+                     ;; See npm docs though as this may change between versions.
+                     ;; https://docs.npmjs.com/files/package.json#dependencies
+                     [your-module "github-usernam/repo-name#comitish"]]}
 ```
 
 These dependencies, and any npm dependencies of packages pulled in through the
