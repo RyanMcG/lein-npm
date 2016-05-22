@@ -23,7 +23,7 @@ You can specify a project's npm dependencies by adding an `:npm` map to your
                      ;; Other types of dependencies (github, private npm, etc.) can be passed as a string
                      ;; See npm docs though as this may change between versions.
                      ;; https://docs.npmjs.com/files/package.json#dependencies
-                     [your-module "github-usernam/repo-name#comitish"]]}
+                     [your-module "github-username/repo-name#commitish"]]}
 ```
 
 These dependencies, and any npm dependencies of packages pulled in through the
