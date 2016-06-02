@@ -78,6 +78,12 @@
               [name (leiningen.core.user/resolve-credentials repo)]))
        (into {})))
 
+(defn- open-jars [fs]
+  (letfn [(trace [x] (println x) x)]
+    (->> fs
+         (filter #(.endsWith (.getName %) ".jar"))
+         (map #(JarFile. %)))))
+
 (defn- resolve-in-jar-deps
   "Finds dependencies in a project definition using lookup-deps in all the
   project definitions for jar dependencies of a project. Excludes any Clojure
@@ -86,7 +92,7 @@
   (->> (a/resolve-dependencies :coordinates (project :dependencies)
                                :repositories (resolve-repositories (project :repositories)))
        (a/dependency-files)
-       (map #(JarFile. %))
+       open-jars
        (keep (partial resolve-in-jar-dep lookup-deps exclusions))
        (reduce concat)))
 
