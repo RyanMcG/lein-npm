@@ -45,6 +45,7 @@ specified in your `project.clj` at `:package` under `:npm`.:
 
 ```sh
 $ lein npm install        # installs project dependencies
+$ lein npm install -k     # installs project dependencies and keeps package.json
 $ lein npm ls             # lists installed dependencies
 $ lein npm search nyancat # searches for packages containing "nyancat"
 ```
