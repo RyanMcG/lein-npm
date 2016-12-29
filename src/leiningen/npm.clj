@@ -57,7 +57,7 @@
 (defn- project->package
   [project]
   (json/generate-string
-   (merge {:private true} ;; prevent npm warnings about repository and README
+   (merge {:private (get-in project [:npm :private] true)} ;; by default prevent npm warnings about repository and README
           {:name (project :name)
            :description (project :description)
            :version (project :version)
@@ -66,6 +66,10 @@
             {:devDependencies (transform-deps dev-deps)})
           (when-let [main (project :main)]
             {:scripts {:start (str "node " main)}})
+          (when-let [license (get-in project [:npm :license])]
+            {:license license})
+          (when-let [repository (get-in project [:npm :repository])]
+            {:repository repository})
           (get-in project [:npm :package]))
    {:pretty true}))
 
