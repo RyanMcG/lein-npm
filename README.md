@@ -14,7 +14,10 @@ To enable lein-npm for your project, put the following in the
 ## Managing npm dependencies
 
 You can specify a project's npm dependencies by adding an `:npm` map to your
-`project.clj` with a `:dependencies` key.
+`project.clj` with a `:dependencies` or `:devDependencies` key. These correspond
+to the [`"dependencies"`](https://docs.npmjs.com/files/package.json#dependencies)
+and [`"devDependencies"`](https://docs.npmjs.com/files/package.json#devdependencies) 
+keys in a `package.json` file. 
 
 ```clojure
 :npm {:dependencies [[underscore "1.4.3"]
@@ -29,6 +32,13 @@ You can specify a project's npm dependencies by adding an `:npm` map to your
 These dependencies, and any npm dependencies of packages pulled in through the
 regular `:dependencies`, will be installed through npm when you run either
 `lein npm install` or `lein deps`.
+
+## Transitive dependencies
+
+lein-npm looks at your project's dependencies (and their dependencies, e.t.c.) to check if there are any
+NPM libraries in `:dependencies` in the project.clj to install. Your testing and development 
+libraries should go into `:devDependencies`. The only things that should go into `:dependencies` are NPM 
+dependencies that are required for people to use your library.
 
 ## Invoking npm
 
