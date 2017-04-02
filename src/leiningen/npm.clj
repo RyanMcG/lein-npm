@@ -73,11 +73,15 @@
           (get-in project [:npm :package]))
    {:pretty true}))
 
-(defn- write-ephemeral-file
+(defn- write-file
   [file content]
   (doto file
     (-> .getParentFile .mkdirs)
-    (spit content)
+    (spit content)))
+
+(defn- write-ephemeral-file
+  [file content]
+  (doto (write-file file content)
     (.deleteOnExit)))
 
 (defmacro with-ephemeral-file
@@ -97,6 +101,11 @@
   (with-ephemeral-package-json project
     (println "lein-npm generated package.json:\n")
     (println (slurp (package-file-from-project project)))))
+
+(defn dump-package
+  [project]
+  (write-file (package-file-from-project project)
+              (project->package project)))
 
 (def key-deprecations
   "Mappings from old keys to new keys in :npm."
@@ -135,6 +144,8 @@
      (cond
       (= ["pprint"] args)
       (npm-debug project)
+      (= ["dump-package"])
+      (dump-package project)
       :else
       (with-ephemeral-package-json project
         (apply invoke project args)))))
