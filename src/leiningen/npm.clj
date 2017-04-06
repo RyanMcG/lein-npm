@@ -77,7 +77,7 @@
    {:pretty true}))
 
 (defn- write-file
-  [file content ephemeral?]
+  [file content {:keys [ephemeral?] :or {ephemeral? true}}]
   (doto file
     (-> .getParentFile .mkdirs)
     (spit content))
@@ -85,24 +85,23 @@
     (.deleteOnExit file)))
 
 (defmacro with-file
-  [file content ephemeral? & forms]
+  [file content opts & forms]
   `(try
-     (write-file ~file ~content ~ephemeral?)
+     (write-file ~file ~content ~opts)
      ~@forms
      (finally
-       (when ~ephemeral?
+       (when-not (false? (:ephemeral? ~opts))
          (.delete ~file)))))
 
-(defmacro with-package-json [project ephemeral? & body]
+(defmacro with-package-json [project & body]
   `(with-file (package-file-from-project ~project)
               (project->package ~project)
-              ~ephemeral?
+              (:npm ~project)
               ~@body))
 
 (defn npm-debug
   [project]
   (with-package-json project
-    (get-in project [:npm :ephemeral?])
     (println "lein-npm generated package.json:\n")
     (println (slurp (package-file-from-project project)))))
 
@@ -145,14 +144,13 @@
       (npm-debug project)
       :else
       (with-package-json project
-        (get-in project [:npm :ephemeral?])
         (apply invoke project args)))))
 
 (defn install-deps
   [project]
   (environmental-consistency project)
   (warn-about-deprecation project)
-  (with-package-json project true
+  (with-package-json project
     (invoke project "install")))
 
 ; Only run install-deps via wrap-deps once. For some reason it is being called
