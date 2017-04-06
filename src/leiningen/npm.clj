@@ -33,7 +33,10 @@
 
 (defn environmental-consistency
   [project]
-  (when (.exists (package-file-from-project project))
+  (when
+    (and
+      (not (get-in project [:npm :ephemeral?]))
+      (.exists (package-file-from-project project)))
     (do
       (println
         (format "Your project already has a %s file. " package-file-name)
@@ -73,28 +76,33 @@
           (get-in project [:npm :package]))
    {:pretty true}))
 
-(defn- write-ephemeral-file
-  [file content]
+(defn- write-file
+  [file content ephemeral?]
   (doto file
     (-> .getParentFile .mkdirs)
-    (spit content)
-    (.deleteOnExit)))
+    (spit content))
+  (when ephemeral?
+    (.deleteOnExit file)))
 
-(defmacro with-ephemeral-file
-  [file content & forms]
+(defmacro with-file
+  [file content ephemeral? & forms]
   `(try
-     (write-ephemeral-file ~file ~content)
+     (write-file ~file ~content ~ephemeral?)
      ~@forms
-     (finally (.delete ~file))))
+     (finally
+       (when ~ephemeral?
+         (.delete ~file)))))
 
-(defmacro with-ephemeral-package-json [project & body]
-  `(with-ephemeral-file (package-file-from-project ~project)
-                        (project->package ~project)
-     ~@body))
+(defmacro with-package-json [project ephemeral? & body]
+  `(with-file (package-file-from-project ~project)
+              (project->package ~project)
+              ~ephemeral?
+              ~@body))
 
 (defn npm-debug
   [project]
-  (with-ephemeral-package-json project
+  (with-package-json project
+    (get-in project [:npm :ephemeral?])
     (println "lein-npm generated package.json:\n")
     (println (slurp (package-file-from-project project)))))
 
@@ -136,14 +144,15 @@
       (= ["pprint"] args)
       (npm-debug project)
       :else
-      (with-ephemeral-package-json project
+      (with-package-json project
+        (get-in project [:npm :ephemeral?])
         (apply invoke project args)))))
 
 (defn install-deps
   [project]
   (environmental-consistency project)
   (warn-about-deprecation project)
-  (with-ephemeral-package-json project
+  (with-package-json project true
     (invoke project "install")))
 
 ; Only run install-deps via wrap-deps once. For some reason it is being called
