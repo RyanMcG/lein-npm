@@ -29,7 +29,7 @@ keys in a `package.json` file.
                      [your-module "github-username/repo-name#commitish"]]}
 ```
 
-These dependencies, and any npm dependencies of packages pulled in through the
+You can specify private npm modules by passing a string for the scoped module name, such as `["@yr_npm_username/underscore" "1.4.3"]`.These dependencies, and any npm dependencies of packages pulled in through the
 regular `:dependencies`, will be installed through npm when you run either
 `lein npm install` or `lein deps`.
 
