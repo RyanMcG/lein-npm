@@ -89,7 +89,7 @@ though, or `lein run` will stay with its default behaviour.
 ## Changing the directory used
 
 npm does not allow you to put stuff anywhere besides `node_modules`, even
-if that name is [against your religion](https://docs.npmjs.com/misc/faq#node-modules-is-the-name-of-my-deity-s-arch-rival-and-a-forbidden-word-in-my-religion-can-i-configure-npm-to-use-a-different-folder),
+if that name is [against your religion](http://web.archive.org/web/20151125135410/https://docs.npmjs.com/misc/faq#node-modules-is-the-name-of-my-deity-s-arch-rival-and-a-forbidden-word-in-my-religion-can-i-configure-npm-to-use-a-different-folder),
 however, you can change the root used by lein-npm to be something other than
 your project root like this:
 
