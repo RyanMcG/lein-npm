@@ -71,6 +71,8 @@
             {:scripts {:start (str "node " main)}})
           (when-let [license (get-in project [:npm :license])]
             {:license license})
+          (when-let [bin (get-in project [:npm :bin])]
+            {:bin bin})
           (when-let [repository (get-in project [:npm :repository])]
             {:repository repository})
           (get-in project [:npm :package]))
