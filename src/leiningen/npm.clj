@@ -35,7 +35,7 @@
   [project]
   (when
     (and
-      (not (get-in project [:npm :ephemeral?]))
+      (not (false? (get-in project [:npm :ephemeral?])))
       (.exists (package-file-from-project project)))
     (do
       (println
