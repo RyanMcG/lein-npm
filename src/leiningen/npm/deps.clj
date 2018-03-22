@@ -107,9 +107,9 @@
 
 (defn resolve-node-deps
   ([lookup-deps project]
-     (let [deps (concat (lookup-deps project)
-                        (resolve-in-jar-deps lookup-deps project (scan-checkouts-projects (:root project)))
-                        (resolve-in-checkouts-deps lookup-deps (:root project)))]
+     (let [deps (concat (resolve-in-jar-deps lookup-deps project (scan-checkouts-projects (:root project)))
+                        (resolve-in-checkouts-deps lookup-deps (:root project))
+                        (lookup-deps project))]
        deps))
   ([project]
      (resolve-node-deps default-lookup-deps project)))
