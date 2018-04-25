@@ -35,7 +35,7 @@ regular `:dependencies`, will be installed through npm when you run either
 
 ## Transitive dependencies
 
-lein-npm looks at your project's dependencies (and their dependencies, e.t.c.) to check if there are any
+lein-npm looks at your project's dependencies (and their dependencies, etc) to check if there are any
 NPM libraries in `:dependencies` in the project.clj to install. Your testing and development 
 libraries should go into `:devDependencies`. The only things that should go into `:dependencies` are NPM 
 dependencies that are required for people to use your library.
