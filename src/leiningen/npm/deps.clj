@@ -84,7 +84,8 @@
   project jars that are named in a set of exclusions."
   [lookup-deps project exclusions]
   (->> (a/resolve-dependencies :coordinates (project :dependencies)
-                               :repositories (resolve-repositories (project :repositories)))
+                               :repositories (resolve-repositories (project :repositories))
+                               :managed-coordinates (project :managed-dependencies))
        (a/dependency-files)
        (map #(JarFile. %))
        (keep (partial resolve-in-jar-dep lookup-deps exclusions))
